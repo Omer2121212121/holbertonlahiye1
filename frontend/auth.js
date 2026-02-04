@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loginBtn.addEventListener('click', handleLogin);
     }
 
-    function handleRegister() {
+    async function handleRegister() {
         const name = document.getElementById('full-name').value.trim();
         const username = document.getElementById('reg-username').value.trim();
         const password = document.getElementById('reg-password').value;
@@ -24,37 +24,43 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Get existing users
-        const users = JSON.parse(localStorage.getItem('holberton_users')) || [];
-
-        // Check if username exists
-        if (users.find(u => u.username === username)) {
-            showError(errorBox, "Bu istifadəçi adı artıq mövcuddur!");
-            return;
+        if (regBtn) {
+            regBtn.innerText = "Gözləyin...";
+            regBtn.disabled = true;
         }
 
-        // Create new user
-        const newUser = {
-            name: name,
-            username: username,
-            password: password,
-            gender: gender
-        };
+        try {
+            // Get existing users to check username
+            const users = await api.getUsers();
 
-        // Add Discord if provided
-        if (discord) {
-            newUser.discord = discord;
+            // Check if username exists
+            if (users.find(u => u.username === username)) {
+                showError(errorBox, "Bu istifadəçi adı artıq mövcuddur!");
+                resetBtn(regBtn, "QEYDİYYATDAN KEÇ");
+                return;
+            }
+
+            // Create new user
+            const newUser = {
+                name: name,
+                username: username,
+                password: password,
+                gender: gender,
+                discord: discord || undefined
+            };
+
+            await api.createUser(newUser);
+
+            alert("Uğurla qeydiyyatdan keçdiniz! İndi daxil olun.");
+            window.location.href = 'login.html';
+        } catch (e) {
+            console.error(e);
+            showError(errorBox, "Səhv baş verdi. Zəhmət olmasa yenidən cəhd edin.");
+            resetBtn(regBtn, "QEYDİYYATDAN KEÇ");
         }
-
-        // Save
-        users.push(newUser);
-        localStorage.setItem('holberton_users', JSON.stringify(users));
-
-        alert("Uğurla qeydiyyatdan keçdiniz! İndi daxil olun.");
-        window.location.href = 'login.html';
     }
 
-    function handleLogin() {
+    async function handleLogin() {
         const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value;
         const errorBox = document.getElementById('error-message');
@@ -70,28 +76,25 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.innerText = "Yoxlanılır...";
         }
 
-        // Simulate network delay
-        setTimeout(() => {
+        try {
             let currentUser = null;
 
-            // Check for admin login
+            // Check for admin login (Hardcoded for safety/demo, could also be key from API)
             if (username === "admin" && password === "admin") {
                 currentUser = {
                     name: "Admin",
                     username: "admin",
-                    role: "admin"
+                    role: "admin",
+                    // Mock ID for admin
+                    id: "admin_id"
                 };
             } else {
-                // Get registered users
-                const users = JSON.parse(localStorage.getItem('holberton_users')) || [];
+                // Get registered users from API
+                const users = await api.getUsers();
                 const user = users.find(u => u.username === username && u.password === password);
 
                 if (user) {
-                    currentUser = {
-                        name: user.name,
-                        username: user.username,
-                        role: "student"
-                    };
+                    currentUser = user;
                 }
             }
 
@@ -101,12 +104,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.href = 'holberton1.html';
             } else {
                 showError(errorBox, "İstifadəçi adı və ya şifrə yanlışdır!");
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerText = "Daxil ol";
-                }
+                resetBtn(btn, "Daxil ol");
             }
-        }, 800);
+        } catch (e) {
+            console.error(e);
+            showError(errorBox, "Server xətası!");
+            resetBtn(btn, "Daxil ol");
+        }
     }
 
     function showError(element, message) {
@@ -115,6 +119,13 @@ document.addEventListener('DOMContentLoaded', () => {
             element.style.display = 'block';
         } else {
             alert(message);
+        }
+    }
+
+    function resetBtn(btn, text) {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerText = text;
         }
     }
 });

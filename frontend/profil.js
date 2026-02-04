@@ -7,6 +7,7 @@ try {
     window.location.href = 'login.html';
 }
 
+// Redirect if not logged in
 if (!currentUser) {
     window.location.href = 'login.html';
 }
@@ -14,29 +15,51 @@ if (!currentUser) {
 const isAdmin = currentUser.role === 'admin';
 const isStudent = currentUser.role === 'student';
 
+// Global users list for admin
+let allUsers = [];
+
 // Show role badge
 const badge = document.getElementById('role-badge');
-if (isAdmin) {
-    badge.textContent = 'Admin';
-    badge.style.background = 'rgba(225, 29, 72, 0.2)';
-    badge.style.color = '#e11d48';
-    badge.style.border = '1px solid rgba(225, 29, 72, 0.3)';
-} else {
-    badge.textContent = 'Student';
-    badge.style.background = 'rgba(56, 189, 248, 0.2)';
-    badge.style.color = '#38bdf8';
-    badge.style.border = '1px solid rgba(56, 189, 248, 0.3)';
+if (badge) {
+    if (isAdmin) {
+        badge.textContent = 'Admin';
+        badge.style.background = 'rgba(225, 29, 72, 0.2)';
+        badge.style.color = '#e11d48';
+        badge.style.border = '1px solid rgba(225, 29, 72, 0.3)';
+    } else {
+        badge.textContent = 'Student';
+        badge.style.background = 'rgba(56, 189, 248, 0.2)';
+        badge.style.color = '#38bdf8';
+        badge.style.border = '1px solid rgba(56, 189, 248, 0.3)';
+    }
 }
 
 // Display appropriate view
-if (isStudent) {
-    showStudentProfile();
-} else if (isAdmin) {
-    showAdminPanel();
+// Refresh currentUser data from API to ensure fresh data
+async function initProfile() {
+    // If student, refresh own data
+    if (isStudent && currentUser.id) {
+        const freshData = await api.getUser(currentUser.id);
+        if (freshData) {
+            currentUser = freshData;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        }
+    }
+
+    if (isStudent) {
+        showStudentProfile();
+    } else if (isAdmin) {
+        showAdminPanel();
+    }
 }
 
+initProfile();
+
+
 function showStudentProfile() {
-    document.getElementById('student-view').style.display = 'block';
+    const studentView = document.getElementById('student-view');
+    if (studentView) studentView.style.display = 'block';
+
     document.getElementById('student-name').textContent = currentUser.name;
     document.getElementById('student-username').textContent = `@${currentUser.username}`;
 
@@ -57,32 +80,43 @@ function showStudentProfile() {
 }
 
 function showAdminPanel() {
-    document.getElementById('admin-view').style.display = 'block';
+    const adminView = document.getElementById('admin-view');
+    if (adminView) adminView.style.display = 'block';
     loadAllUsers();
 }
 
-function loadAllUsers() {
-    const users = JSON.parse(localStorage.getItem('holberton_users')) || [];
+async function loadAllUsers() {
     const usersList = document.getElementById('users-list');
-    usersList.innerHTML = '';
+    usersList.innerHTML = '<div style="color:white;">Loading users...</div>';
 
-    // Add admin user card
-    const adminCard = createUserCard({
-        name: 'Admin',
-        username: 'admin',
-        role: 'admin',
-        isSystemUser: true
-    });
-    usersList.appendChild(adminCard);
+    try {
+        allUsers = await api.getUsers();
+        usersList.innerHTML = '';
 
-    // Add all registered users
-    users.forEach((user, index) => {
-        const userCard = createUserCard(user, index);
-        usersList.appendChild(userCard);
-    });
+        // Add admin user card (static visual representation)
+        const adminCard = createUserCard({
+            name: 'Admin',
+            username: 'admin',
+            role: 'admin',
+            isSystemUser: true
+        });
+        usersList.appendChild(adminCard);
+
+        // Add all registered users
+        allUsers.forEach((user) => {
+            // Skip showing the admin account itself if it was fetched
+            if (user.username === 'admin') return;
+
+            const userCard = createUserCard(user);
+            usersList.appendChild(userCard);
+        });
+
+    } catch (e) {
+        usersList.innerHTML = '<div style="color:red;">Failed to load users</div>';
+    }
 }
 
-function createUserCard(user, index) {
+function createUserCard(user) {
     const card = document.createElement('div');
     card.style.cssText = 'background: #1e293b; padding: 20px; border-radius: 16px; margin-bottom: 16px; border: 1px solid #334155;';
 
@@ -104,10 +138,10 @@ function createUserCard(user, index) {
             </div>
             <div style="display: flex; gap: 12px;">
                 ${!user.isSystemUser ? `
-                    <button onclick="editUser(${index})" style="padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                    <button onclick="editUser('${user.id}')" style="padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
                         <i class="fas fa-edit"></i> Edit
                     </button>
-                    <button onclick="deleteUser(${index})" style="padding: 10px 20px; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                    <button onclick="deleteUser('${user.id}')" style="padding: 10px 20px; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
                         <i class="fas fa-trash"></i> Delete
                     </button>
                 ` : '<span style="color: #94a3b8; font-size: 12px;">System User</span>'}
@@ -118,12 +152,12 @@ function createUserCard(user, index) {
     return card;
 }
 
-let currentEditIndex = null;
+let currentEditId = null;
 
-function editUser(index) {
-    currentEditIndex = index;
-    const users = JSON.parse(localStorage.getItem('holberton_users')) || [];
-    const user = users[index];
+function editUser(id) {
+    currentEditId = id;
+    const user = allUsers.find(u => u.id == id);
+    if (!user) return;
 
     // Populate modal fields
     document.getElementById('edit-name').value = user.name;
@@ -138,7 +172,7 @@ function editUser(index) {
 
 function closeEditModal() {
     document.getElementById('edit-modal').style.display = 'none';
-    currentEditIndex = null;
+    currentEditId = null;
 }
 
 function editOwnProfile() {
@@ -150,12 +184,12 @@ function editOwnProfile() {
     document.getElementById('edit-gender').value = currentUser.gender || 'Male';
 
     // Set a flag to indicate self-edit
-    currentEditIndex = -1; // Special value for self-edit
+    currentEditId = 'SELF';
 
     document.getElementById('edit-modal').style.display = 'flex';
 }
 
-function saveOwnProfile() {
+async function saveUserEdit() {
     const newName = document.getElementById('edit-name').value.trim();
     const newUsername = document.getElementById('edit-username').value.trim();
     const newPassword = document.getElementById('edit-password').value;
@@ -167,81 +201,48 @@ function saveOwnProfile() {
         return;
     }
 
-    // Find and update user in holberton_users
-    const users = JSON.parse(localStorage.getItem('holberton_users')) || [];
-    const userIndex = users.findIndex(u => u.username === currentUser.username);
+    const updates = {
+        name: newName,
+        username: newUsername,
+        discord: newDiscord || undefined,
+        gender: newGender
+    };
+    if (newPassword) updates.password = newPassword;
 
-    if (userIndex !== -1) {
-        users[userIndex].name = newName;
-        users[userIndex].username = newUsername;
-
-        if (newPassword) {
-            users[userIndex].password = newPassword;
+    try {
+        if (currentEditId === 'SELF') {
+            // Student updating their own profile
+            if (currentUser.id) {
+                const updatedUser = await api.updateUser(currentUser.id, updates);
+                localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+                currentUser = updatedUser; // Update local state
+                showStudentProfile();
+                alert('Profile updated successfully!');
+            } else {
+                alert("Cannot update profile: User ID missing (Migration issue?)");
+            }
+        } else {
+            // Admin updating another user
+            await api.updateUser(currentEditId, updates);
+            loadAllUsers();
+            alert('User updated successfully!');
         }
-
-        users[userIndex].discord = newDiscord || undefined;
-        users[userIndex].gender = newGender;
-
-        localStorage.setItem('holberton_users', JSON.stringify(users));
-
-        // Update currentUser in localStorage
-        currentUser.name = newName;
-        currentUser.username = newUsername;
-        currentUser.discord = newDiscord || undefined;
-        currentUser.gender = newGender;
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    }
-
-    closeEditModal();
-    showStudentProfile();
-    alert('Profile updated successfully!');
-}
-
-function saveUserEdit() {
-    if (currentEditIndex === -1) {
-        // Self-edit mode
-        saveOwnProfile();
-    } else if (currentEditIndex !== null) {
-        // Admin editing another user
-        const users = JSON.parse(localStorage.getItem('holberton_users')) || [];
-        const user = users[currentEditIndex];
-
-        const newName = document.getElementById('edit-name').value.trim();
-        const newUsername = document.getElementById('edit-username').value.trim();
-        const newPassword = document.getElementById('edit-password').value;
-        const newDiscord = document.getElementById('edit-discord').value.trim();
-        const newGender = document.getElementById('edit-gender').value;
-
-        if (!newName || !newUsername) {
-            alert('Name and Username are required!');
-            return;
-        }
-
-        user.name = newName;
-        user.username = newUsername;
-
-        if (newPassword) {
-            user.password = newPassword;
-        }
-
-        user.discord = newDiscord || undefined;
-        user.gender = newGender;
-
-        users[currentEditIndex] = user;
-        localStorage.setItem('holberton_users', JSON.stringify(users));
-
         closeEditModal();
-        loadAllUsers();
-        alert('User updated successfully!');
+    } catch (e) {
+        console.error(e);
+        alert("Update failed!");
     }
 }
 
-function deleteUser(index) {
+async function deleteUser(id) {
     if (confirm('Are you sure you want to delete this user?')) {
-        const users = JSON.parse(localStorage.getItem('holberton_users')) || [];
-        users.splice(index, 1);
-        localStorage.setItem('holberton_users', JSON.stringify(users));
-        loadAllUsers();
-        alert('User deleted successfully!');
+        try {
+            await api.deleteUser(id);
+            loadAllUsers();
+            alert('User deleted successfully!');
+        } catch (e) {
+            console.error(e);
+            alert("Delete failed!");
+        }
     }
 }

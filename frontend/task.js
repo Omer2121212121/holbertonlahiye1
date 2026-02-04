@@ -9,24 +9,30 @@ try {
 const isAdmin = currentUser && currentUser.role === 'admin';
 const isStudent = currentUser && currentUser.role === 'student';
 
-let tasks = JSON.parse(localStorage.getItem('myTasks')) || [];
+// Global state for tasks
+let tasks = [];
 
 const input = document.getElementById('new-task-input');
 const addBtn = document.getElementById('add-task-btn');
 const container = document.getElementById('tasks-container');
 
 // Hide input for students
-if (isStudent) {
+if (isStudent && input) {
     const inputGroup = document.querySelector('.input-group');
     if (inputGroup) inputGroup.style.display = 'none';
 }
 
-function saveTasks() {
-    localStorage.setItem('myTasks', JSON.stringify(tasks));
-    renderTasks();
+// Fetch Tasks from API
+async function loadTasks() {
+    try {
+        tasks = await api.getTasks();
+        renderTasks();
+    } catch (e) {
+        console.error("Failed to load tasks:", e);
+    }
 }
 
-function addTask() {
+async function addTask() {
     // Only admins can add tasks
     if (!isAdmin) {
         alert('Yalnız adminlər tapşırıq əlavə edə bilər!');
@@ -35,32 +41,75 @@ function addTask() {
 
     if (input.value.trim() === "") return;
 
-    const task = {
-        id: Date.now(),
+    const taskData = {
         text: input.value,
-        completed: false
+        completed: false,
+        createdAt: new Date().toISOString(),
+        createdBy: currentUser.username
     };
 
-    tasks.push(task);
-    input.value = "";
-    saveTasks();
+    try {
+        await api.createTask(taskData);
+        input.value = "";
+        loadTasks(); // Reload to get new list
+    } catch (e) {
+        alert("Failed to add task");
+    }
 }
 
-function toggleTask(id) {
-    // Only admins can toggle
+async function toggleTask(id) {
+    // Only admins can toggle status (based on original logic, though usually users mark done)
+    // Assuming original logic: Admin toggles status
     if (!isAdmin) return;
-    tasks = tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
-    saveTasks();
+
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+
+    try {
+        await api.updateTask(id, { completed: !task.completed });
+        loadTasks();
+    } catch (e) {
+        console.error(e);
+    }
 }
 
-function deleteTask(id) {
+async function deleteTask(id) {
     // Only admins can delete
     if (!isAdmin) {
         alert('Yalnız adminlər tapşırığı silə bilər!');
         return;
     }
-    tasks = tasks.filter(t => t.id !== id);
-    saveTasks();
+
+    if (confirm("Are you sure?")) {
+        try {
+            await api.deleteTask(id);
+            loadTasks();
+        } catch (e) {
+            console.error(e);
+        }
+    }
+}
+
+async function editTask(id) {
+    // Only admins can edit
+    if (!isAdmin) {
+        alert('Yalnız adminlər tapşırığı redaktə edə bilər!');
+        return;
+    }
+
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+
+    const newText = prompt("Tapşırığı redaktə et:", task.text);
+    if (newText !== null && newText.trim() !== "") {
+        try {
+            await api.updateTask(id, { text: newText.trim() });
+            loadTasks();
+        } catch (e) {
+            console.error(e);
+            alert("Update failed");
+        }
+    }
 }
 
 let currentFilter = 'all';
@@ -81,26 +130,35 @@ function filterTasks(filter) {
 function renderTasks(filter = currentFilter) {
     container.innerHTML = "";
 
-    let filteredTasks = tasks;
+    let filteredTasks = [...tasks];
     if (filter === 'active') filteredTasks = tasks.filter(t => !t.completed);
     if (filter === 'completed') filteredTasks = tasks.filter(t => t.completed);
 
-    // Sort by date (newest first)
-    filteredTasks.sort((a, b) => b.id - a.id);
+    // Sort by date (newest first) - assuming IDs are growing or createdAt exists
+    filteredTasks.sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+        const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+        return dateB - dateA;
+    });
+
+    if (filteredTasks.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding: 20px; color: #64748b;">No tasks found</div>';
+        return;
+    }
 
     filteredTasks.forEach(task => {
         const div = document.createElement('div');
         div.className = `task-card ${task.completed ? 'completed' : ''}`;
 
         // Format date
-        const date = new Date(task.id);
-        const formattedDate = date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+        let formattedDate = "";
+        if (task.createdAt) {
+            const date = new Date(task.createdAt);
+            formattedDate = date.toLocaleDateString('en-US', {
+                year: 'numeric', month: 'short', day: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+        }
 
         // Students see read-only view
         if (isStudent) {
@@ -110,7 +168,7 @@ function renderTasks(filter = currentFilter) {
                     <div>
                         <span id="text-${task.id}">${task.text}</span>
                         <div style="font-size: 12px; color: #64748b; margin-top: 4px;">
-                            <i class="far fa-clock"></i> ${formattedDate}
+                            ${formattedDate ? `<i class="far fa-clock"></i> ${formattedDate}` : ''}
                         </div>
                     </div>
                 </div>
@@ -119,17 +177,17 @@ function renderTasks(filter = currentFilter) {
             // Admins see full controls
             div.innerHTML = `
                 <div class="task-info">
-                    <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${task.id}); event.stopPropagation();">
-                    <div style="flex: 1; cursor: pointer;" onclick="openFocusMode(${task.id})">
+                    <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask('${task.id}')">
+                    <div style="flex: 1; cursor: pointer;" onclick="openFocusMode('${task.id}')">
                         <span id="text-${task.id}">${task.text}</span>
                         <div style="font-size: 12px; color: #64748b; margin-top: 4px;">
-                            <i class="far fa-clock"></i> ${formattedDate}
+                            ${formattedDate ? `<i class="far fa-clock"></i> ${formattedDate}` : ''}
                         </div>
                     </div>
                 </div>
                 <div class="task-actions">
-                    <i class="fas fa-edit edit-icon" onclick="editTask(${task.id}); event.stopPropagation();" style="color: #3498db; margin-right: 10px; cursor: pointer;"></i>
-                    <i class="fas fa-trash delete-icon" onclick="deleteTask(${task.id}); event.stopPropagation();"></i>
+                    <i class="fas fa-edit edit-icon" onclick="editTask('${task.id}')" style="color: #3498db; margin-right: 10px; cursor: pointer;"></i>
+                    <i class="fas fa-trash delete-icon" onclick="deleteTask('${task.id}')"></i>
                 </div>
             `;
         }
@@ -137,30 +195,14 @@ function renderTasks(filter = currentFilter) {
     });
 }
 
-function editTask(id) {
-    // Only admins can edit
-    if (!isAdmin) {
-        alert('Yalnız adminlər tapşırığı redaktə edə bilər!');
-        return;
-    }
-
-    const task = tasks.find(t => t.id === id);
-    if (!task) return;
-
-    const newText = prompt("Tapşırığı redaktə et:", task.text);
-    if (newText !== null && newText.trim() !== "") {
-        tasks = tasks.map(t => t.id === id ? { ...t, text: newText.trim() } : t);
-        saveTasks();
-    }
-}
 
 if (addBtn) addBtn.addEventListener('click', addTask);
 if (input) input.addEventListener('keypress', (e) => { if (e.key === 'Enter') addTask(); });
 
-// İlkin yükləmə
-renderTasks();
+// Initial load
+loadTasks();
 
-// --- FOCUS MODE LOGIC ---
+// --- FOCUS MODE LOGIC (Unchanged mostly, just string ID update) ---
 const focusOverlay = document.getElementById('focus-overlay');
 const focusTitle = document.getElementById('focus-task-title');
 const timerDisplay = document.getElementById('timer-display');
@@ -168,11 +210,12 @@ const startBtn = document.getElementById('start-timer-btn');
 const finishBtn = document.getElementById('finish-task-btn');
 
 let timerInterval = null;
-let timeLeft = 3600; // 1 hour in seconds
+let timeLeft = 3600;
 let isTimerRunning = false;
 
-function openFocusMode(taskId) {
-    const task = tasks.find(t => t.id === taskId);
+window.openFocusMode = function (taskId) {
+    // Ensure taskId is compared correctly (API returns string IDs usually)
+    const task = tasks.find(t => t.id == taskId);
     if (!task) return;
 
     focusTitle.innerText = task.text;
@@ -186,7 +229,6 @@ function openFocusMode(taskId) {
     // Show Overlay
     focusOverlay.style.display = 'flex';
 
-    // Request Fullscreen
     if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen().catch(e => console.log(e));
     }
@@ -198,38 +240,35 @@ function updateTimerDisplay() {
     timerDisplay.innerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
 
-startBtn.addEventListener('click', () => {
-    if (isTimerRunning) {
-        // Pause
+if (startBtn) {
+    startBtn.addEventListener('click', () => {
+        if (isTimerRunning) {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            startBtn.innerHTML = '<i class="fas fa-play"></i> Start';
+        } else {
+            isTimerRunning = true;
+            startBtn.innerHTML = '<i class="fas fa-pause"></i> Pause';
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateTimerDisplay();
+                } else {
+                    clearInterval(timerInterval);
+                    alert("Time is up!");
+                }
+            }, 1000);
+        }
+    });
+}
+
+if (finishBtn) {
+    finishBtn.addEventListener('click', () => {
         clearInterval(timerInterval);
         isTimerRunning = false;
-        startBtn.innerHTML = '<i class="fas fa-play"></i> Start';
-    } else {
-        // Start
-        isTimerRunning = true;
-        startBtn.innerHTML = '<i class="fas fa-pause"></i> Pause';
-        timerInterval = setInterval(() => {
-            if (timeLeft > 0) {
-                timeLeft--;
-                updateTimerDisplay();
-            } else {
-                clearInterval(timerInterval);
-                alert("Time is up!");
-            }
-        }, 1000);
-    }
-});
-
-finishBtn.addEventListener('click', () => {
-    // Stop timer
-    clearInterval(timerInterval);
-    isTimerRunning = false;
-
-    // Hide Overlay
-    focusOverlay.style.display = 'none';
-
-    // Exit Fullscreen
-    if (document.exitFullscreen) {
-        document.exitFullscreen().catch(e => console.log(e));
-    }
-});
+        focusOverlay.style.display = 'none';
+        if (document.exitFullscreen) {
+            document.exitFullscreen().catch(e => console.log(e));
+        }
+    });
+}
