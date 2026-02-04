@@ -50,6 +50,10 @@ const api = {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(userData)
             });
+            if (!res.ok) {
+                const errText = await res.text();
+                throw new Error(`Failed to create user: ${res.status} ${errText}`);
+            }
             return await res.json();
         } catch (e) {
             console.error("Error creating user:", e);

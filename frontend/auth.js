@@ -55,7 +55,9 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = 'login.html';
         } catch (e) {
             console.error(e);
-            showError(errorBox, "Səhv baş verdi. Zəhmət olmasa yenidən cəhd edin.");
+        } catch (e) {
+            console.error(e);
+            showError(errorBox, `Error: ${e.message || "Unknown error occurred"}`);
             resetBtn(regBtn, "QEYDİYYATDAN KEÇ");
         }
     }
