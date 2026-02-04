@@ -16,10 +16,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const username = document.getElementById('reg-username').value.trim();
         const password = document.getElementById('reg-password').value;
         const discord = document.getElementById('reg-discord').value.trim();
+        const gender = document.getElementById('reg-gender').value;
         const errorBox = document.getElementById('error-message');
 
-        if (!name || !username || !password) {
-            showError(errorBox, "Zəhmət olmasa bütün xanaları doldurun!");
+        if (!name || !username || !password || !gender) {
+            showError(errorBox, "Zəhmət olmasa bütün xanaları (Cinsiyyət daxil) doldurun!");
             return;
         }
 
@@ -36,7 +37,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const newUser = {
             name: name,
             username: username,
-            password: password
+            password: password,
+            gender: gender
         };
 
         // Add Discord if provided

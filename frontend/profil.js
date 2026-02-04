@@ -48,6 +48,11 @@ function showStudentProfile() {
         discordInfo.textContent = 'Student';
     }
 
+    const genderInfo = document.getElementById('student-gender');
+    if (genderInfo) {
+        genderInfo.textContent = currentUser.gender === 'Male' ? 'Kişi' : (currentUser.gender === 'Female' ? 'Qadın' : 'Qeyd olunmayıb');
+    }
+
     document.getElementById('student-avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name)}&background=38bdf8&color=fff&size=128`;
 }
 
@@ -90,6 +95,7 @@ function createUserCard(user, index) {
                     <h3 style="color: white; margin: 0 0 4px 0;">${user.name}</h3>
                     <p style="color: #94a3b8; margin: 0; font-size: 14px;">@${user.username}</p>
                     ${user.discord ? `<p style="color: #5865F2; margin: 4px 0 0 0; font-size: 13px;"><i class="fab fa-discord"></i> ${user.discord}</p>` : ''}
+                    ${user.gender ? `<p style="color: #94a3b8; margin: 4px 0 0 0; font-size: 13px;"><i class="fas fa-venus-mars"></i> ${user.gender === 'Male' ? 'Kişi' : 'Qadın'}</p>` : ''}
                     <span style="display: inline-block; margin-top: 8px; padding: 4px 12px; background: ${user.role === 'admin' ? 'rgba(225, 29, 72, 0.2)' : 'rgba(56, 189, 248, 0.2)'}; 
                                  color: ${user.role === 'admin' ? '#e11d48' : '#38bdf8'}; border-radius: 12px; font-size: 12px; font-weight: 600;">
                         ${user.role === 'admin' ? 'Admin' : 'Student'}
@@ -124,6 +130,7 @@ function editUser(index) {
     document.getElementById('edit-username').value = user.username;
     document.getElementById('edit-password').value = '';
     document.getElementById('edit-discord').value = user.discord || '';
+    document.getElementById('edit-gender').value = user.gender || 'Male';
 
     // Show modal
     document.getElementById('edit-modal').style.display = 'flex';
@@ -140,6 +147,7 @@ function editOwnProfile() {
     document.getElementById('edit-username').value = currentUser.username;
     document.getElementById('edit-password').value = '';
     document.getElementById('edit-discord').value = currentUser.discord || '';
+    document.getElementById('edit-gender').value = currentUser.gender || 'Male';
 
     // Set a flag to indicate self-edit
     currentEditIndex = -1; // Special value for self-edit
@@ -152,6 +160,7 @@ function saveOwnProfile() {
     const newUsername = document.getElementById('edit-username').value.trim();
     const newPassword = document.getElementById('edit-password').value;
     const newDiscord = document.getElementById('edit-discord').value.trim();
+    const newGender = document.getElementById('edit-gender').value;
 
     if (!newName || !newUsername) {
         alert('Name and Username are required!');
@@ -171,6 +180,7 @@ function saveOwnProfile() {
         }
 
         users[userIndex].discord = newDiscord || undefined;
+        users[userIndex].gender = newGender;
 
         localStorage.setItem('holberton_users', JSON.stringify(users));
 
@@ -178,6 +188,7 @@ function saveOwnProfile() {
         currentUser.name = newName;
         currentUser.username = newUsername;
         currentUser.discord = newDiscord || undefined;
+        currentUser.gender = newGender;
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
     }
 
@@ -199,6 +210,7 @@ function saveUserEdit() {
         const newUsername = document.getElementById('edit-username').value.trim();
         const newPassword = document.getElementById('edit-password').value;
         const newDiscord = document.getElementById('edit-discord').value.trim();
+        const newGender = document.getElementById('edit-gender').value;
 
         if (!newName || !newUsername) {
             alert('Name and Username are required!');
@@ -213,6 +225,7 @@ function saveUserEdit() {
         }
 
         user.discord = newDiscord || undefined;
+        user.gender = newGender;
 
         users[currentEditIndex] = user;
         localStorage.setItem('holberton_users', JSON.stringify(users));

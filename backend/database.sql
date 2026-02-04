@@ -11,6 +11,7 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL, -- Should store hashed passwords
     discord VARCHAR(50),
     role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'student')),
+    gender VARCHAR(10) CHECK (gender IN ('Male', 'Female')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
