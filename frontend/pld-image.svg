@@ -1,0 +1,6 @@
+<svg width="300" height="120" viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="120" rx="20" fill="#1e3a8a"></rect>
+  <text x="150" y="80" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="64" font-weight="700" fill="#ffffff">
+    PLD
+  </text>
+</svg>

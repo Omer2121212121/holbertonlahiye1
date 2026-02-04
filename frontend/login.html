@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="az">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Giriş | Holberton School</title>
+    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="theme-vars.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="OIP.webp">
+    <script src="theme-init.js"></script>
+</head>
+
+<body>
+    <div class="login-wrapper">
+        <div class="login-box">
+            <div class="logo-area">
+                <img src="OIP.webp" alt="Holberton School">
+            </div>
+
+            <h2>Welcome!</h2>
+
+            <div id="error-message" class="error-box"></div>
+
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="username" placeholder="İstifadəçi adı">
+            </div>
+
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="password" placeholder="Şifrə">
+            </div>
+
+            <button id="login-btn">Daxil ol</button>
+
+            <div style="margin-top: 20px; text-align: center; color: #94a3b8;">
+                Hesabın yoxdur? <a href="register.html"
+                    style="color: #d12027; text-decoration: none; font-weight: bold;">Qeydiyyat</a>
+            </div>
+        </div>
+    </div>
+    <script src="auth.js" defer></script>
+</body>
+
+</html>

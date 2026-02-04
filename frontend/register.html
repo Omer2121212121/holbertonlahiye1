@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="az">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Qeydiyyat | Holberton School</title>
+    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="theme-vars.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="OIP.webp">
+    <script src="theme-init.js"></script>
+</head>
+
+<body>
+    <div class="login-wrapper">
+        <div class="login-box">
+            <div class="logo-area">
+                <img src="OIP.webp" alt="Holberton School">
+            </div>
+
+            <h2>Qeydiyyat</h2>
+
+            <div id="error-message" class="error-box">
+                <i class="fas fa-exclamation-circle"></i> Səhv baş verdi!
+            </div>
+
+            <div class="input-group">
+                <i class="fas fa-id-card"></i>
+                <input type="text" id="full-name" placeholder="Tam Adınız">
+            </div>
+
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="reg-username" placeholder="İstifadəçi adı">
+            </div>
+
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="reg-password" placeholder="Şifrə">
+            </div>
+
+            <div class="input-group">
+                <i class="fab fa-discord"></i>
+                <input type="text" id="reg-discord" placeholder="Discord (optional)">
+            </div>
+
+            <button id="register-btn">QEYDİYYATDAN KEÇ</button>
+
+            <div style="margin-top: 20px; text-align: center; color: #94a3b8;">
+                Artıq hesabın var? <a href="login.html"
+                    style="color: #d12027; text-decoration: none; font-weight: bold;">Daxil ol</a>
+            </div>
+        </div>
+    </div>
+    <script src="auth.js"></script>
+</body>
+
+</html>

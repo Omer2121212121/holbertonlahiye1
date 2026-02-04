@@ -1,0 +1,50 @@
+/* Centralized Theme Variables */
+:root {
+    /* Dark Theme (Default) */
+    --holberton-red: #d12027;
+    --bg-dark: #0f172a;
+    --sidebar-bg: #1e293b;
+    --card-bg: #1e293b;
+    --card-surface: #1e293b;
+    --primary-color: #e11d48;
+    --primary-hover: #be123c;
+    --text-main: #f8fafc;
+    --text-white: #f8fafc;
+    --text-gray: #94a3b8;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+    --input-bg: rgba(15, 23, 42, 0.6);
+    --success: #10b981;
+    --warning: #f59e0b;
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
+/* Light Theme Mode (Eye-Friendly) */
+.light-theme {
+    --bg-dark: #f1f5f9;
+    /* Slate 100 - softer than white */
+    --sidebar-bg: #f8fafc;
+    /* Slate 50 */
+    --card-bg: #ffffff;
+    --card-surface: #ffffff;
+    --text-main: #1e293b;
+    /* Slate 800 */
+    --text-white: #1e293b;
+    --text-gray: #64748b;
+    /* Slate 500 */
+    --text-muted: #94a3b8;
+    /* Slate 400 */
+    --border-color: #cbd5e1;
+    /* Slate 300 */
+    --input-bg: #ffffff;
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+}
+
+/* Smooth Transitions for everything */
+body {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+* {
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}

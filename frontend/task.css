@@ -1,0 +1,294 @@
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-white);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    margin: 0;
+    padding: 40px;
+    min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.task-page-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 48px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.task-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.back-btn {
+    text-decoration: none;
+    color: var(--text-gray);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.2s;
+    background: var(--card-bg);
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+}
+
+.back-btn:hover {
+    color: var(--text-white);
+    border-color: var(--text-gray);
+}
+
+/* --- INPUT AREA --- */
+.input-group {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 32px;
+    background: var(--card-bg);
+    padding: 8px;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+#new-task-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 16px;
+    color: var(--text-white);
+    font-size: 16px;
+    outline: none;
+}
+
+#new-task-input::placeholder {
+    color: #475569;
+}
+
+#add-task-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0 32px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#add-task-btn:hover {
+    background: #be123c;
+}
+
+/* --- FILTERS --- */
+.filter-tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.filter {
+    cursor: pointer;
+    color: var(--text-gray);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: 0.3s;
+    background: var(--card-bg);
+    border: 1px solid transparent;
+}
+
+.filter:hover {
+    background: var(--border-color);
+    color: var(--text-white);
+}
+
+.filter.active {
+    background: rgba(225, 29, 72, 0.1);
+    color: var(--primary-color);
+    border-color: rgba(225, 29, 72, 0.2);
+}
+
+/* --- TASK LIST --- */
+#tasks-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.task-card {
+    background: var(--card-bg);
+    padding: 20px 24px;
+    border-radius: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--active-yellow);
+    /* Default Yellow */
+    transition: all 0.3s ease;
+}
+
+.task-card:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.task-card.completed {
+    border-left-color: var(--text-gray);
+    opacity: 0.6;
+    background: var(--bg-dark);
+}
+
+.task-card.completed span {
+    text-decoration: line-through;
+    color: var(--text-gray);
+}
+
+.task-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 16px;
+}
+
+.task-info input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--primary-color);
+    cursor: pointer;
+}
+
+.task-actions {
+    display: flex;
+    gap: 16px;
+    opacity: 0;
+    /* Show on hover */
+    transition: 0.2s;
+}
+
+.task-card:hover .task-actions {
+    opacity: 1;
+}
+
+.edit-icon:hover {
+    color: #38bdf8 !important;
+    transform: scale(1.1);
+}
+
+.delete-icon:hover {
+    color: #f87171 !important;
+    transform: scale(1.1);
+}
+
+.badge-admin {
+    background: rgba(225, 29, 72, 0.15);
+    color: var(--primary-color);
+    border: 1px solid rgba(225, 29, 72, 0.2);
+}
+
+.badge-student {
+    background: rgba(56, 189, 248, 0.15);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+.light-theme .badge-student {
+    background: rgba(56, 189, 248, 0.1);
+    border-color: rgba(56, 189, 248, 0.15);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- FOCUS OVERLAY --- */
+.focus-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #0f172a;
+    /* Deep dark background */
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+.focus-content {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.focus-overlay h1 {
+    font-size: 3rem;
+    margin-bottom: 2rem;
+    color: var(--text-white);
+}
+
+.timer-display {
+    font-size: 6rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 3rem;
+    font-family: 'Courier New', monospace;
+    /* Monospace for timer */
+}
+
+.focus-controls {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.focus-btn {
+    padding: 15px 40px;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: transform 0.2s;
+}
+
+.focus-btn:hover {
+    transform: scale(1.05);
+}
+
+.start-btn {
+    background-color: #22c55e;
+    color: white;
+}
+
+.finish-btn {
+    background-color: #e11d48;
+    color: white;
+}

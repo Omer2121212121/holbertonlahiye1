@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="az">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil - Holberton</title>
+    <link rel="stylesheet" href="profil.css">
+    <link rel="stylesheet" href="theme-vars.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="OIP.webp">
+    <script src="theme-init.js"></script>
+</head>
+
+<body>
+    <div class="profile-container">
+        <header class="profile-header">
+            <a href="holberton1.html" class="back-link"><i class="fas fa-arrow-left"></i> Dashboard-a qayıt</a>
+            <span id="role-badge"
+                style="font-size: 12px; padding: 6px 14px; border-radius: 12px; font-weight: 600;"></span>
+        </header>
+
+        <!-- Student Profile View -->
+        <section id="student-view" class="profile-card" style="display: none;">
+            <div class="profile-top">
+                <img id="student-avatar" class="profile-img" alt="User">
+                <h2 id="student-name"></h2>
+                <p class="specialty" id="student-username"></p>
+                <div class="location"><i class="fas fa-user-tag"></i> <span id="student-role"></span></div>
+            </div>
+
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <span class="stat-num">0</span>
+                    <span class="stat-label">Tasks Completed</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-num">Student</span>
+                    <span class="stat-label">Role</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-num">Active</span>
+                    <span class="stat-label">Status</span>
+                </div>
+            </div>
+
+            <button onclick="editOwnProfile()"
+                style="width: 100%; padding: 14px; margin-top: 24px; background: #3498db; color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 15px;">
+                <i class="fas fa-edit"></i> Edit Profile
+            </button>
+        </section>
+
+        <!-- Admin User Management View -->
+        <section id="admin-view" style="display: none;">
+            <h2 style="color: white; margin-bottom: 24px;">User Management</h2>
+
+            <div id="users-list"></div>
+        </section>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="edit-modal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
+        <div
+            style="background: #1e293b; padding: 32px; border-radius: 20px; width: 90%; max-width: 500px; border: 1px solid #334155;">
+            <h2 style="color: white; margin: 0 0 24px 0; font-size: 24px;">Edit User</h2>
+
+            <div style="margin-bottom: 16px;">
+                <label style="color: #94a3b8; display: block; margin-bottom: 8px; font-size: 14px;">Name</label>
+                <input type="text" id="edit-name"
+                    style="width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: white; font-size: 15px;">
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <label style="color: #94a3b8; display: block; margin-bottom: 8px; font-size: 14px;">Username</label>
+                <input type="text" id="edit-username"
+                    style="width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: white; font-size: 15px;">
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <label style="color: #94a3b8; display: block; margin-bottom: 8px; font-size: 14px;">Password <span
+                        style="color: #64748b; font-size: 12px;">(leave empty to keep current)</span></label>
+                <input type="password" id="edit-password" placeholder="••••••••"
+                    style="width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: white; font-size: 15px;">
+            </div>
+
+            <div style="margin-bottom: 24px;">
+                <label style="color: #94a3b8; display: block; margin-bottom: 8px; font-size: 14px;">Discord <span
+                        style="color: #64748b; font-size: 12px;">(optional)</span></label>
+                <input type="text" id="edit-discord" placeholder="username#0000"
+                    style="width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: white; font-size: 15px;">
+            </div>
+
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button onclick="closeEditModal()"
+                    style="padding: 12px 24px; background: #475569; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                    Cancel
+                </button>
+                <button onclick="saveUserEdit()"
+                    style="padding: 12px 24px; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="profil.js"></script>
+</body>
+
+</html>

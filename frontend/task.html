@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="az">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tapşırıqlar - Holberton</title>
+    <link rel="stylesheet" href="task.css">
+    <link rel="stylesheet" href="theme-vars.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="OIP.webp">
+    <script src="theme-init.js"></script>
+</head>
+
+<body>
+    <div class="task-page-container">
+        <header class="task-header">
+            <a href="holberton1.html" class="back-btn"><i class="fas fa-arrow-left"></i> Dashboard-a qayıt</a>
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <h1>Mənim Tapşırıqlarım</h1>
+                <span id="role-badge"
+                    style="font-size: 12px; padding: 4px 12px; border-radius: 12px; font-weight: 600;"></span>
+            </div>
+            <script>
+                // Show role badge
+                const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                const badge = document.getElementById('role-badge');
+                if (user.role === 'admin') {
+                    badge.textContent = 'Admin';
+                    badge.className = 'badge-admin';
+                } else if (user.role === 'student') {
+                    badge.textContent = 'Student';
+                    badge.className = 'badge-student';
+                }
+            </script>
+        </header>
+
+        <main class="task-content">
+            <div class="input-group">
+                <input type="text" id="new-task-input" placeholder="Yeni layihə və ya tapşırıq əlavə edin...">
+                <button id="add-task-btn"><i class="fas fa-plus"></i> Əlavə et</button>
+            </div>
+
+            <div class="filter-tabs">
+                <span class="filter active" onclick="filterTasks('all')">Hamısı</span>
+                <span class="filter" onclick="filterTasks('active')">Davam edənlər</span>
+                <span class="filter" onclick="filterTasks('completed')">Bitənlər</span>
+            </div>
+
+            <div id="tasks-container">
+            </div>
+        </main>
+        <!-- Focus Mode Overlay -->
+        <div id="focus-overlay" class="focus-overlay">
+            <div class="focus-content">
+                <h1 id="focus-task-title">Task Title</h1>
+                <div class="timer-display" id="timer-display">60:00</div>
+                <div class="focus-controls">
+                    <button id="start-timer-btn" class="focus-btn start-btn"><i class="fas fa-play"></i> Start</button>
+                    <button id="finish-task-btn" class="focus-btn finish-btn"><i class="fas fa-check"></i>
+                        Finish</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script src="task.js"></script>
+</body>
+
+</html>

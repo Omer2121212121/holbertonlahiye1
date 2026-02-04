@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="az">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayarlar - Holberton</title>
+    <link rel="stylesheet" href="setting.css">
+    <link rel="stylesheet" href="setting.css">
+    <link rel="stylesheet" href="theme-vars.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="OIP.webp">
+    <script src="theme-init.js"></script>
+</head>
+
+<body class="dark-theme">
+    <div class="settings-container">
+        <header class="settings-header">
+            <a href="holberton1.html" class="back-link"><i class="fas fa-arrow-left"></i> Dashboard</a>
+            <h1>Ayarlar</h1>
+        </header>
+
+        <section class="settings-content">
+            <div class="settings-group">
+                <h3><i class="fas fa-paint-brush"></i> Görünüş</h3>
+                <div class="setting-item">
+                    <span>Qaranlıq Rejim</span>
+                    <label class="switch">
+                        <input type="checkbox" id="theme-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <h3><i class="fas fa-bell"></i> Bildirişlər</h3>
+                <div class="setting-item">
+                    <span>PLD Xatırlatması</span>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <span>Yeni Task Bildirişi</span>
+                    <label class="switch">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <h3><i class="fas fa-user-shield"></i> Təhlükəsizlik</h3>
+                <button class="danger-btn" onclick="deleteAccount()">Hesabı sil</button>
+            </div>
+        </section>
+    </div>
+    <script src="setting.js"></script>
+</body>
+
+</html>
