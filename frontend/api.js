@@ -11,7 +11,7 @@
  * 5. Paste it below in the API_URL variable.
  */
 
-const API_URL = "YOUR_MOCKAPI_URL_HERE"; // <--- PASTE YOUR URL HERE
+const API_URL = "https://6983d5fe885008c00daf6d54.mockapi.io"; // User provided URL (stripped /users)
 
 const api = {
     // --- USERS ---
