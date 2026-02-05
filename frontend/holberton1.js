@@ -10,13 +10,9 @@ try {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // LocalStorage-dan tapşırıqları yüklə
-    let tasks = [];
-    try {
-        tasks = JSON.parse(localStorage.getItem('myTasks')) || [];
-    } catch (e) {
-        console.warn('Tasks storage error:', e);
-    }
+    // LocalStorage-dan tapşırıqları yüklə (OLD LOCAL STORAGE METHOD REMOVED)
+    // Now we will load in updateUI asynchronously
+
 
     function updatePLD() {
         // Anchor date: Feb 4, 2026 10:30
@@ -80,11 +76,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function updateUI() {
-        // Reload tasks to get fresh data
+    async function updateUI() {
+        // Reload tasks from API
+        let tasks = [];
         try {
-            tasks = JSON.parse(localStorage.getItem('myTasks')) || [];
+            tasks = await api.getTasks();
         } catch (e) {
+            console.warn('Could not load tasks from API:', e);
             tasks = [];
         }
 
@@ -200,6 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function logout() {
     try {
         localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('currentUser');
     } catch (e) {
         console.warn('Logout failed:', e);
     }

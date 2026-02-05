@@ -53,7 +53,8 @@ async function addTask() {
         input.value = "";
         loadTasks(); // Reload to get new list
     } catch (e) {
-        alert("Failed to add task");
+        console.error("Add task error:", e);
+        alert(`Failed to add task: ${e.message}`);
     }
 }
 

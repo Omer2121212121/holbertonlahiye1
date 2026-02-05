@@ -69,7 +69,8 @@ h2 {
     pointer-events: none;
 }
 
-.input-group input {
+.input-group input,
+.input-group select {
     width: 100%;
     padding: 13px 16px 13px 46px;
     background: rgba(15, 23, 42, 0.6);
@@ -83,18 +84,30 @@ h2 {
     box-sizing: border-box;
 }
 
+.input-group input::placeholder,
+.input-group select {
+    color: rgba(148, 163, 184, 0.6);
+}
+
+.input-group select option {
+    background: #1e293b;
+    color: white;
+}
+
 .input-group input::placeholder {
     color: rgba(148, 163, 184, 0.6);
 }
 
-.input-group input:focus {
+.input-group input:focus,
+.input-group select:focus {
     background: rgba(15, 23, 42, 0.8);
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.12);
     outline: none;
 }
 
-.input-group input:focus+i {
+.input-group input:focus+i,
+.input-group select:focus+i {
     color: var(--primary-color);
     transform: translateY(-50%) scale(1.05);
 }

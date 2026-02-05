@@ -55,8 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = 'login.html';
         } catch (e) {
             console.error(e);
-        } catch (e) {
-            console.error(e);
             showError(errorBox, `Error: ${e.message || "Unknown error occurred"}`);
             resetBtn(regBtn, "QEYDİYYATDAN KEÇ");
         }

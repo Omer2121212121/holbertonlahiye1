@@ -20,7 +20,10 @@ const api = {
     getUsers: async () => {
         try {
             const res = await fetch(`${API_URL}/users`);
-            if (!res.ok) throw new Error('Failed to fetch users');
+            if (!res.ok) {
+                const errText = await res.text();
+                throw new Error(`Failed to fetch users: ${res.status} ${errText}`);
+            }
             return await res.json();
         } catch (e) {
             console.error(e);
@@ -93,7 +96,12 @@ const api = {
     getTasks: async () => {
         try {
             const res = await fetch(`${API_URL}/tasks`);
-            if (!res.ok) throw new Error('Failed to fetch tasks');
+            if (!res.ok) {
+                // If 404, it might just mean no tasks yet or resource missing. 
+                // Detailed error helps debug.
+                const errText = await res.text();
+                throw new Error(`Failed to fetch tasks: ${res.status} ${errText}`);
+            }
             return await res.json();
         } catch (e) {
             console.error(e);
@@ -109,6 +117,10 @@ const api = {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(taskData)
             });
+            if (!res.ok) {
+                const errText = await res.text();
+                throw new Error(`Failed to create task: ${res.status} ${errText}`);
+            }
             return await res.json();
         } catch (e) {
             console.error(e);
@@ -124,6 +136,10 @@ const api = {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updates)
             });
+            if (!res.ok) {
+                const errText = await res.text();
+                throw new Error(`Failed to update task: ${res.status} ${errText}`);
+            }
             return await res.json();
         } catch (e) {
             console.error(e);
@@ -134,7 +150,11 @@ const api = {
     // Delete task
     deleteTask: async (id) => {
         try {
-            await fetch(`${API_URL}/tasks/${id}`, { method: 'DELETE' });
+            const res = await fetch(`${API_URL}/tasks/${id}`, { method: 'DELETE' });
+            if (!res.ok) {
+                const errText = await res.text();
+                throw new Error(`Failed to delete task: ${res.status} ${errText}`);
+            }
             return true;
         } catch (e) {
             console.error(e);
