@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loginBtn.addEventListener('click', handleLogin);
     }
 
-    async function handleRegister() {
+    function handleRegister() {
         const name = document.getElementById('full-name').value.trim();
         const username = document.getElementById('reg-username').value.trim();
         const password = document.getElementById('reg-password').value;
@@ -30,8 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            // Get existing users to check username
-            const users = await api.getUsers();
+            // Get existing users from localStorage
+            const users = JSON.parse(localStorage.getItem('holberton_users') || '[]');
 
             // Check if username exists
             if (users.find(u => u.username === username)) {
@@ -42,14 +42,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Create new user
             const newUser = {
+                id: Date.now().toString(), // Simple ID generation
                 name: name,
                 username: username,
                 password: password,
                 gender: gender,
-                discord: discord || undefined
+                discord: discord || '',
+                role: 'student', // Default role
+                createdAt: new Date().toISOString()
             };
 
-            await api.createUser(newUser);
+            users.push(newUser);
+            localStorage.setItem('holberton_users', JSON.stringify(users));
 
             alert("Uğurla qeydiyyatdan keçdiniz! İndi daxil olun.");
             window.location.href = 'login.html';
@@ -60,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function handleLogin() {
+    function handleLogin() {
         const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value;
         const errorBox = document.getElementById('error-message');
@@ -79,18 +83,17 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             let currentUser = null;
 
-            // Check for admin login (Hardcoded for safety/demo, could also be key from API)
+            // Check for admin login
             if (username === "admin" && password === "admin") {
                 currentUser = {
+                    id: "admin_id",
                     name: "Admin",
                     username: "admin",
-                    role: "admin",
-                    // Mock ID for admin
-                    id: "admin_id"
+                    role: "admin"
                 };
             } else {
-                // Get registered users from API
-                const users = await api.getUsers();
+                // Get registered users from localStorage
+                const users = JSON.parse(localStorage.getItem('holberton_users') || '[]');
                 const user = users.find(u => u.username === username && u.password === password);
 
                 if (user) {
@@ -108,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (e) {
             console.error(e);
-            showError(errorBox, "Server xətası!");
+            showError(errorBox, "Gözlənilməz xəta baş verdi!");
             resetBtn(btn, "Daxil ol");
         }
     }

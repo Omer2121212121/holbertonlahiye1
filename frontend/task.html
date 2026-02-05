@@ -3,8 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tapşırıqlar - Holberton</title>
+    <title>Tapşırıqlar | Holberton School</title>
     <link rel="stylesheet" href="task.css">
     <link rel="stylesheet" href="theme-vars.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -13,32 +12,43 @@
 </head>
 
 <body>
-    <div class="task-page-container">
+    <div class="container">
         <header class="task-header">
-            <a href="holberton1.html" class="back-btn"><i class="fas fa-arrow-left"></i> Dashboard-a qayıt</a>
-            <div style="display: flex; align-items: center; gap: 16px;">
-                <h1>Mənim Tapşırıqlarım</h1>
-                <span id="role-badge"
-                    style="font-size: 12px; padding: 4px 12px; border-radius: 12px; font-weight: 600;"></span>
+            <div class="header-left">
+                <img src="OIP.webp" alt="Logo" class="mini-logo">
+                <h1>Holberton <span class="highlight">Tasks</span></h1>
             </div>
-            <script>
-                // Show role badge
-                const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
-                const badge = document.getElementById('role-badge');
-                if (user.role === 'admin') {
-                    badge.textContent = 'Admin';
-                    badge.className = 'badge-admin';
-                } else if (user.role === 'student') {
-                    badge.textContent = 'Student';
-                    badge.className = 'badge-student';
-                }
-            </script>
+            <nav class="header-nav">
+                <a href="holberton1.html"><i class="fas fa-home"></i></a>
+                <a href="profil.html" class="active"><i class="fas fa-user"></i></a>
+                <a href="setting.html"><i class="fas fa-cog"></i></a>
+                <a href="#" onclick="logout()" class="logout-link"><i class="fas fa-sign-out-alt"></i></a>
+            </nav>
         </header>
 
         <main class="task-content">
-            <div class="input-group">
-                <input type="text" id="new-task-input" placeholder="Yeni layihə və ya tapşırıq əlavə edin...">
-                <button id="add-task-btn"><i class="fas fa-plus"></i> Əlavə et</button>
+            <div id="admin-input-area" style="display: none;">
+                <div class="input-card"
+                    style="background: var(--card-bg); padding: 24px; border-radius: 16px; border: 1px solid var(--border-color); margin-bottom: 24px;">
+                    <h3 style="margin-bottom: 16px; font-size: 18px;"><i class="fas fa-plus-circle"
+                            style="color: var(--primary-color);"></i> Yeni İmtahan/Layihə Əlavə Et</h3>
+                    <div class="input-wrapper" style="margin-bottom: 16px;">
+                        <label
+                            style="display: block; color: var(--text-gray); font-size: 13px; margin-bottom: 8px;">Mövzu/Başlıq</label>
+                        <input type="text" id="new-task-input"
+                            placeholder="Mövzunu daxil edin (məs: C Programming - Pointers)"
+                            style="width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 8px; color: white;">
+                    </div>
+                    <div class="input-wrapper" style="margin-bottom: 20px;">
+                        <label
+                            style="display: block; color: var(--text-gray); font-size: 13px; margin-bottom: 8px;">Suallar
+                            (Hər sualı yeni sətirdən yazın)</label>
+                        <textarea id="new-questions-input" placeholder="1. Sual nədir?&#10;2. İzah edin..."
+                            style="width: 100%; height: 120px; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 8px; color: white; resize: vertical;"></textarea>
+                    </div>
+                    <button id="add-task-btn" style="width: 100%; justify-content: center; padding: 14px;"><i
+                            class="fas fa-save"></i> Tapşırığı Yadda Saxla</button>
+                </div>
             </div>
 
             <div class="filter-tabs">
@@ -50,21 +60,50 @@
             <div id="tasks-container">
             </div>
         </main>
+
         <!-- Focus Mode Overlay -->
         <div id="focus-overlay" class="focus-overlay">
-            <div class="focus-content">
-                <h1 id="focus-task-title">Task Title</h1>
-                <div class="timer-display" id="timer-display">60:00</div>
-                <div class="focus-controls">
-                    <button id="start-timer-btn" class="focus-btn start-btn"><i class="fas fa-play"></i> Start</button>
-                    <button id="finish-task-btn" class="focus-btn finish-btn"><i class="fas fa-check"></i>
-                        Finish</button>
+            <div id="mini-timer" class="mini-timer" style="display: none;">60:00</div>
+
+            <div id="violation-msg" class="violation-msg">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h2>XƏBƏRDARLIQ!</h2>
+                <p>İmtahan rejimindən kənara çıxdınız. Bu hal qeydə alındı.</p>
+                <button onclick="resumeExam()" class="focus-btn start-btn">Davam et</button>
+            </div>
+
+            <!-- Floating Control Box (Top Right) -->
+            <div class="focus-controls-box">
+                <div class="controls-timer" id="timer-display">60:00</div>
+                <div class="controls-info">
+                    <h4 id="focus-task-title">Task Title</h4>
+                    <button id="finish-task-btn" class="focus-btn finish-btn small">
+                        <i class="fas fa-check"></i> Bitir
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Scrollable Questions Area -->
+            <div class="focus-main-content">
+                <div class="questions-header">
+                    <h3><i class="fas fa-file-alt"></i> İmtahan Sualları</h3>
+                </div>
+                <div id="questions-content" class="questions-body">
+                    <!-- Questions will go here -->
+                </div>
+
+                <div class="answer-container">
+                    <div class="answer-header">
+                        <h3><i class="fas fa-edit"></i> Cavab sahəsi (Kod və ya Mətn)</h3>
+                        <span class="editor-badge">Sheet 1</span>
+                    </div>
+                    <textarea id="exam-answer-input" class="answer-sheet"
+                        placeholder="Bura öz cavabınızı və ya kodunuzu yazın..."></textarea>
                 </div>
             </div>
         </div>
 
     </div>
-    <script src="api.js"></script>
     <script src="task.js"></script>
 </body>
 

@@ -76,13 +76,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function updateUI() {
-        // Reload tasks from API
+    function updateUI() {
+        // Reload tasks from localStorage
         let tasks = [];
         try {
-            tasks = await api.getTasks();
+            tasks = JSON.parse(localStorage.getItem('myTasks') || '[]');
         } catch (e) {
-            console.warn('Could not load tasks from API:', e);
+            console.warn('Could not load tasks from localStorage:', e);
             tasks = [];
         }
 
@@ -124,7 +124,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     li.style.color = "var(--text-white)"; // Dark theme text color
                     li.style.display = "flex";
                     li.style.alignItems = "center";
-                    li.innerHTML = `<i class="fas fa-circle" style="font-size: 8px; color: #f1c40f; margin-right: 10px;"></i> ${task.text}`;
+                    li.style.cursor = "pointer";
+                    li.onclick = () => window.location.href = `task.html?focus=${task.id}`;
+                    li.innerHTML = `<i class="fas fa-circle" style="font-size: 8px; color: #22c55e; margin-right: 10px;"></i> ${task.text}`;
                     taskList.appendChild(li);
                 });
             }
